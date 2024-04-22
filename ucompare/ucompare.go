@@ -2,16 +2,34 @@ package ucompare
 
 import "golang.org/x/exp/constraints"
 
-func Max[T constraints.Ordered](a, b T) T {
-	if a > b {
-		return a
+func Max[T constraints.Ordered](args ...T) T {
+	l := len(args)
+	var t T
+	if l > 0 {
+		t = args[0]
 	}
-	return b
+
+	for i := 1; i < l; i++ {
+		if args[i] > t {
+			t = args[i]
+		}
+	}
+
+	return t
 }
 
-func Min[T constraints.Ordered](a, b T) T {
-	if a < b {
-		return a
+func Min[T constraints.Ordered](args ...T) T {
+	l := len(args)
+	var t T
+	if l > 0 {
+		t = args[0]
 	}
-	return b
+
+	for i := 1; i < l; i++ {
+		if args[i] < t {
+			t = args[i]
+		}
+	}
+
+	return t
 }

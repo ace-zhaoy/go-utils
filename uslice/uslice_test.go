@@ -262,7 +262,7 @@ type M1 struct {
 	ID int
 }
 
-func (m *M1) GetID() int {
+func (m *M1) GetID() any {
 	return m.ID
 }
 
@@ -276,17 +276,17 @@ func TestToMap(t *testing.T) {
 		want map[int]T
 	}
 
-	tests := []testCase[M1]{
+	tests := []testCase[*M1]{
 		{
 			name: "test1",
-			args: args[M1]{
-				s: []M1{
+			args: args[*M1]{
+				s: []*M1{
 					{ID: 1},
 					{ID: 2},
 					{ID: 3},
 				},
 			},
-			want: map[int]M1{
+			want: map[int]*M1{
 				1: {ID: 1},
 				2: {ID: 2},
 				3: {ID: 3},

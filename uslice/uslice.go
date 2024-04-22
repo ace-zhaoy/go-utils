@@ -90,8 +90,14 @@ func extractKey[K comparable, V any](v V, keyFunc func(V) K) K {
 	if keyFunc != nil {
 		return keyFunc(v)
 	}
+	if kv, ok := any(v).(interface{ GetID() any }); ok {
+		return kv.GetID().(K)
+	}
 	if kv, ok := any(v).(interface{ GetID() K }); ok {
 		return kv.GetID()
+	}
+	if kv, ok := any(v).(interface{ MapKey() any }); ok {
+		return kv.MapKey().(K)
 	}
 	if kv, ok := any(v).(interface{ MapKey() K }); ok {
 		return kv.MapKey()
@@ -114,6 +120,8 @@ func ToMapF[K comparable, V any](s []V, keyFunc func(V) K) map[K]V {
 	}
 	return m
 }
+
+// TODO ToMapV
 
 func ToMapFV[K comparable, V, T any](s []T, keyFunc func(T) K, valueFunc func(T) V) map[K]V {
 	m := make(map[K]V, len(s))
