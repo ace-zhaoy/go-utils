@@ -331,7 +331,7 @@ func TestToMapF(t *testing.T) {
 	}
 }
 
-func TestToMapV(t *testing.T) {
+func TestToMapFV(t *testing.T) {
 	type args[T any, K comparable, V any] struct {
 		s         []T
 		keyFunc   func(T) K
@@ -758,6 +758,55 @@ func TestReverse(t *testing.T) {
 			Reverse(tt.args.s)
 			if !reflect.DeepEqual(tt.args.s, tt.want) {
 				t.Errorf("Reverse() = %v, want %v", tt.args.s, tt.want)
+			}
+		})
+	}
+}
+
+type User struct {
+	ID   int64
+	Name string
+	Age  int
+}
+
+func (u *User) GetID() int64 {
+	return u.ID
+}
+
+func TestToMapV(t *testing.T) {
+	type args[T any, V any] struct {
+		s         []T
+		valueFunc func(T) V
+	}
+	type testCase[T any, V any, K comparable] struct {
+		name string
+		args args[T, V]
+		want map[K]V
+	}
+	tests := []testCase[*User, string, int64]{
+		{
+			name: "test1",
+			args: args[*User, string]{
+				s: []*User{
+					{ID: 1, Name: "a", Age: 1},
+					{ID: 2, Name: "b", Age: 2},
+					{ID: 3, Name: "c", Age: 3},
+				},
+				valueFunc: func(user *User) string {
+					return user.Name
+				},
+			},
+			want: map[int64]string{
+				1: "a",
+				2: "b",
+				3: "c",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := ToMapV[int64](tt.args.s, tt.args.valueFunc); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ToMapV() = %v, want %v", got, tt.want)
 			}
 		})
 	}

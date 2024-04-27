@@ -121,7 +121,13 @@ func ToMapF[K comparable, V any](s []V, keyFunc func(V) K) map[K]V {
 	return m
 }
 
-// TODO ToMapV
+func ToMapV[K comparable, V, T any](s []T, valueFunc func(T) V) map[K]V {
+	m := make(map[K]V, len(s))
+	for _, v := range s {
+		m[extractKey[K](v, nil)] = valueFunc(v)
+	}
+	return m
+}
 
 func ToMapFV[K comparable, V, T any](s []T, keyFunc func(T) K, valueFunc func(T) V) map[K]V {
 	m := make(map[K]V, len(s))

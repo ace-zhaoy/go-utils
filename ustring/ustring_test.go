@@ -118,3 +118,38 @@ func TestSplit(t *testing.T) {
 		})
 	}
 }
+
+func TestStrTrim(t *testing.T) {
+	type args struct {
+		s      string
+		cutset []string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "test",
+			args: args{s: " 你好  ", cutset: []string{" "}},
+			want: "你好",
+		},
+		{
+			name: "empty",
+			args: args{s: "", cutset: []string{" "}},
+			want: "",
+		},
+		{
+			name: "cutset nil",
+			args: args{s: " 你好\n\t  ", cutset: nil},
+			want: "你好",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := StrTrim(tt.args.s, tt.args.cutset...); got != tt.want {
+				t.Errorf("StrTrim() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

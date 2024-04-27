@@ -25,3 +25,11 @@ func Split(s string, sep string) []string {
 	}
 	return strings.Split(s, sep)
 }
+
+func StrTrim(s string, cutset ...string) string {
+	c := " \n\t"
+	if len(cutset) > 0 {
+		c = cutset[0]
+	}
+	return strings.Trim(s, c)
+}
