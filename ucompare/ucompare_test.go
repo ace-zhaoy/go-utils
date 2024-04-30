@@ -1,17 +1,16 @@
 package ucompare
 
 import (
-	"golang.org/x/exp/constraints"
 	"reflect"
 	"testing"
 )
 
 func TestMax(t *testing.T) {
-	type args[T constraints.Ordered] struct {
+	type args[T Ordered] struct {
 		a    T
 		args []T
 	}
-	type testCase[T constraints.Ordered] struct {
+	type testCase[T Ordered] struct {
 		name string
 		args args[T]
 		want T
@@ -35,11 +34,11 @@ func TestMax(t *testing.T) {
 }
 
 func TestMin(t *testing.T) {
-	type args[T constraints.Ordered] struct {
+	type args[T Ordered] struct {
 		a    T
 		args []T
 	}
-	type testCase[T constraints.Ordered] struct {
+	type testCase[T Ordered] struct {
 		name string
 		args args[T]
 		want T

@@ -86,21 +86,22 @@ func Chunk[T any](s []T, length uint) [][]T {
 	return n
 }
 
+// extractKey Go暂不支持接口合集，先隐式处理
 func extractKey[K comparable, V any](v V, keyFunc func(V) K) K {
 	if keyFunc != nil {
 		return keyFunc(v)
 	}
-	if kv, ok := any(v).(interface{ GetID() any }); ok {
-		return kv.GetID().(K)
-	}
-	if kv, ok := any(v).(interface{ GetID() K }); ok {
-		return kv.GetID()
+	if kv, ok := any(v).(interface{ MapKey() K }); ok {
+		return kv.MapKey()
 	}
 	if kv, ok := any(v).(interface{ MapKey() any }); ok {
 		return kv.MapKey().(K)
 	}
-	if kv, ok := any(v).(interface{ MapKey() K }); ok {
-		return kv.MapKey()
+	if kv, ok := any(v).(interface{ GetID() K }); ok {
+		return kv.GetID()
+	}
+	if kv, ok := any(v).(interface{ GetID() any }); ok {
+		return kv.GetID().(K)
 	}
 	panic("extractKey: no key function provided and value doesn't implement GetID or MapKey")
 }

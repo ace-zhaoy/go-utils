@@ -1,8 +1,13 @@
 package ucompare
 
-import "golang.org/x/exp/constraints"
+type Ordered interface {
+	~int | ~int8 | ~int16 | ~int32 | ~int64 |
+		~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr |
+		~float32 | ~float64 |
+		~string
+}
 
-func Max[T constraints.Ordered](args ...T) T {
+func Max[T Ordered](args ...T) T {
 	l := len(args)
 	var t T
 	if l > 0 {
@@ -18,7 +23,7 @@ func Max[T constraints.Ordered](args ...T) T {
 	return t
 }
 
-func Min[T constraints.Ordered](args ...T) T {
+func Min[T Ordered](args ...T) T {
 	l := len(args)
 	var t T
 	if l > 0 {
