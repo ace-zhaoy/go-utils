@@ -811,3 +811,42 @@ func TestToMapV(t *testing.T) {
 		})
 	}
 }
+
+func TestForEachB(t *testing.T) {
+	type args[V any] struct {
+		s []V
+		f func(item V) (beak bool)
+	}
+	type testCase[V any] struct {
+		name string
+		args args[V]
+	}
+	tests := []testCase[int]{
+		{
+			name: "test1",
+			args: args[int]{
+				s: []int{1, 2, 3, 4, 5},
+				f: func(item int) (beak bool) {
+					if item == 3 {
+						return true
+					}
+					return false
+				},
+			},
+		},
+		{
+			name: "test2",
+			args: args[int]{
+				s: []int{1, 2, 3, 4, 5},
+				f: func(item int) (beak bool) {
+					return false
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ForEachB(tt.args.s, tt.args.f)
+		})
+	}
+}
