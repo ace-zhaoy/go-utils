@@ -218,7 +218,7 @@ func ForEach[V any](s []V, f func(item V)) {
 	ForEachI(s, func(_ int, item V) { f(item) })
 }
 
-func ForEachB[V any](s []V, f func(item V) (beak bool)) {
+func Range[V any](s []V, f func(item V) (finish bool)) {
 	for _, v := range s {
 		if f(v) {
 			break

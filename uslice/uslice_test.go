@@ -812,7 +812,7 @@ func TestToMapV(t *testing.T) {
 	}
 }
 
-func TestForEachB(t *testing.T) {
+func TestRange(t *testing.T) {
 	type args[V any] struct {
 		s []V
 		f func(item V) (beak bool)
@@ -846,7 +846,7 @@ func TestForEachB(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ForEachB(tt.args.s, tt.args.f)
+			Range(tt.args.s, tt.args.f)
 		})
 	}
 }
