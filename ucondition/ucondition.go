@@ -43,3 +43,11 @@ func IfZeroF[T any](value T, defaultValueFunc func() T) T {
 	}
 	return value
 }
+
+// Value if defaultValue is zero, return zero
+func Value[T any](value, defaultValue T) T {
+	if ureflect.IsZero(defaultValue) {
+		return defaultValue
+	}
+	return IfZero(value, defaultValue)
+}

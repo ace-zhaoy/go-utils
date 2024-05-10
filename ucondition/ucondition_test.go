@@ -147,3 +147,126 @@ func TestIfTF(t *testing.T) {
 		})
 	}
 }
+
+func TestIfZero_int(t *testing.T) {
+	type args[T any] struct {
+		value        T
+		defaultValue T
+	}
+	type testCase[T any] struct {
+		name string
+		args args[T]
+		want T
+	}
+	tests := []testCase[int]{
+		{
+			name: "ZeroValueWithDefault",
+			args: args[int]{value: 0, defaultValue: 10},
+			want: 10,
+		},
+		{
+			name: "NonZeroValue",
+			args: args[int]{value: 5, defaultValue: 10},
+			want: 5,
+		},
+		{
+			name: "NegativeValue",
+			args: args[int]{value: -5, defaultValue: 10},
+			want: -5,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := IfZero(tt.args.value, tt.args.defaultValue); got != tt.want {
+				t.Errorf("IfZero() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIfZero_int_pointer(t *testing.T) {
+	type args[T any] struct {
+		value        T
+		defaultValue T
+	}
+	type testCase[T any] struct {
+		name string
+		args args[T]
+		want T
+	}
+	var (
+		five = 5
+		zero = 0
+		ten  = 10
+	)
+	tests := []testCase[*int]{
+		{
+			name: "PointerToZeroValueWithDefault",
+			args: args[*int]{value: &zero, defaultValue: &ten},
+			want: &zero,
+		},
+		{
+			name: "PointerToNonZeroValue",
+			args: args[*int]{value: &five, defaultValue: &ten},
+			want: &five,
+		},
+		{
+			name: "NilValueWithDefault",
+			args: args[*int]{value: nil, defaultValue: &ten},
+			want: &ten,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := IfZero(tt.args.value, tt.args.defaultValue); got != tt.want {
+				t.Errorf("IfZero() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestValue(t *testing.T) {
+	type args[T any] struct {
+		value        T
+		defaultValue T
+	}
+	type testCase[T any] struct {
+		name string
+		args args[T]
+		want T
+	}
+	var (
+		five = 5
+		zero = 0
+		ten  = 10
+	)
+	tests := []testCase[*int]{
+		{
+			name: "case1",
+			args: args[*int]{value: &zero, defaultValue: &ten},
+			want: &zero,
+		},
+		{
+			name: "case2",
+			args: args[*int]{value: &five, defaultValue: &ten},
+			want: &five,
+		},
+		{
+			name: "case3",
+			args: args[*int]{value: nil, defaultValue: &ten},
+			want: &ten,
+		},
+		{
+			name: "case4",
+			args: args[*int]{value: &ten, defaultValue: nil},
+			want: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := Value(tt.args.value, tt.args.defaultValue); got != tt.want {
+				t.Errorf("Value() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
