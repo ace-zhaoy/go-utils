@@ -231,3 +231,19 @@ func Reverse[V any](s []V) {
 		s[i], s[j] = s[j], s[i]
 	}
 }
+
+func SortSubsetByFullset[V comparable](subset []V, fullset []V) {
+	positionMap := make(map[V]int)
+	for i, val := range fullset {
+		positionMap[val] = i
+	}
+
+	l := len(subset)
+	for i := 0; i < l-1; i++ {
+		for j := i + 1; j < l; j++ {
+			if positionMap[subset[i]] > positionMap[subset[j]] {
+				subset[i], subset[j] = subset[j], subset[i]
+			}
+		}
+	}
+}

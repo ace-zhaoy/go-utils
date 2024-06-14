@@ -850,3 +850,48 @@ func TestRange(t *testing.T) {
 		})
 	}
 }
+
+func TestSortSubsetByFullset(t *testing.T) {
+	type args[V comparable] struct {
+		subset  []V
+		fullset []V
+	}
+	type testCase[V comparable] struct {
+		name string
+		args args[V]
+		want []V
+	}
+	tests := []testCase[int]{
+		{
+			name: "test1",
+			args: args[int]{
+				subset:  []int{1, 2, 3, 4, 5},
+				fullset: []int{1, 2, 3, 4, 5},
+			},
+			want: []int{1, 2, 3, 4, 5},
+		},
+		{
+			name: "test2",
+			args: args[int]{
+				subset:  []int{5, 4, 3, 2, 1},
+				fullset: []int{1, 2, 3, 4, 5, 6},
+			},
+			want: []int{1, 2, 3, 4, 5},
+		},
+		{
+			name: "test3",
+			args: args[int]{
+				subset:  []int{6, 4, 3, 5},
+				fullset: []int{5, 4, 3, 2, 1, 6},
+			},
+			want: []int{5, 4, 3, 6},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if SortSubsetByFullset(tt.args.subset, tt.args.fullset); !reflect.DeepEqual(tt.args.subset, tt.want) {
+				t.Errorf("SortSubsetByFullset() = %v, want %v", tt.args.subset, tt.want)
+			}
+		})
+	}
+}
