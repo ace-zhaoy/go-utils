@@ -886,12 +886,88 @@ func TestSortSubsetByFullset(t *testing.T) {
 			},
 			want: []int{5, 4, 3, 6},
 		},
+		{
+			name: "test4",
+			args: args[int]{
+				subset:  []int{3, 2, 2, 3, 4, 1, 4, 3},
+				fullset: []int{5, 4, 3, 2, 1},
+			},
+			want: []int{4, 4, 3, 3, 3, 2, 2, 1},
+		},
+		{
+			name: "test5",
+			args: args[int]{
+				subset:  []int{3, 2, 2, 3, 4, 1, 4, 3},
+				fullset: []int{5, 4, 3, 2, 4, 3, 2, 1},
+			},
+			want: []int{4, 4, 3, 3, 3, 2, 2, 1},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if SortSubsetByFullset(tt.args.subset, tt.args.fullset); !reflect.DeepEqual(tt.args.subset, tt.want) {
-				t.Errorf("SortSubsetByFullset() = %v, want %v", tt.args.subset, tt.want)
+			if SortSubsetByFullset(tt.args.fullset, tt.args.subset); !reflect.DeepEqual(tt.args.subset, tt.want) {
+				t.Errorf("subset = %v, want %v", tt.args.subset, tt.want)
 			}
+		})
+	}
+}
+
+func TestSortSubsetsByFullset(t *testing.T) {
+	type args[V comparable, S any] struct {
+		fullset   []V
+		subset    []V
+		otherSets [][]S
+	}
+	type testCase[V comparable, S any] struct {
+		name       string
+		args       args[V, S]
+		want       []V
+		wantOthers [][]S
+	}
+	tests := []testCase[int, string]{
+		{
+			name: "test1",
+			args: args[int, string]{
+				fullset:   []int{1, 2, 3, 4, 5},
+				subset:    []int{2, 3, 4},
+				otherSets: [][]string{{"a", "b", "c"}, {"e", "f", "g"}},
+			},
+			want:       []int{2, 3, 4},
+			wantOthers: [][]string{{"a", "b", "c"}, {"e", "f", "g"}},
+		},
+		{
+			name: "test2",
+			args: args[int, string]{
+				fullset:   []int{1, 2, 3, 4, 5},
+				subset:    []int{2, 4, 3, 1},
+				otherSets: [][]string{{"a", "b", "c", "d"}, {"e", "f", "g", "h"}},
+			},
+			want:       []int{1, 2, 3, 4},
+			wantOthers: [][]string{{"d", "a", "c", "b"}, {"h", "e", "g", "f"}},
+		},
+		{
+			name: "test3",
+			args: args[int, string]{
+				fullset:   []int{1, 2, 3, 2, 4, 3, 5},
+				subset:    []int{2, 4, 3, 3, 2, 1},
+				otherSets: [][]string{{"a", "b", "c", "d", "e", "f"}, {"g", "h", "i", "j", "k", "l"}},
+			},
+			want:       []int{1, 2, 2, 3, 3, 4},
+			wantOthers: [][]string{{"f", "a", "e", "c", "d", "b"}, {"l", "g", "k", "i", "j", "h"}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			SortSubsetsByFullset(tt.args.fullset, tt.args.subset, tt.args.otherSets...)
+			if !reflect.DeepEqual(tt.args.subset, tt.want) {
+				t.Errorf("subset = %v, want %v", tt.args.subset, tt.want)
+			}
+			for j := range tt.args.otherSets {
+				if !reflect.DeepEqual(tt.args.otherSets[j], tt.wantOthers[j]) {
+					t.Errorf("otherSets = %v, want %v", tt.args.otherSets[j], tt.wantOthers[j])
+				}
+			}
+
 		})
 	}
 }

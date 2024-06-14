@@ -1,5 +1,9 @@
 package uslice
 
+import (
+	"sort"
+)
+
 func Intersect[T comparable](s1, s2 []T) []T {
 	m, n := make(map[T]struct{}, len(s1)), make([]T, 0)
 	for _, v := range s1 {
@@ -232,18 +236,57 @@ func Reverse[V any](s []V) {
 	}
 }
 
-func SortSubsetByFullset[V comparable](subset []V, fullset []V) {
-	positionMap := make(map[V]int)
+// SortSubsetByFullset sorts subset by fullset
+func SortSubsetByFullset[V comparable](fullset []V, subset []V) {
+	positionMap := make(map[V]int, len(fullset))
 	for i, val := range fullset {
+		if _, ok := positionMap[val]; ok {
+			continue
+		}
 		positionMap[val] = i
 	}
+	sort.SliceStable(subset, func(i, j int) bool {
+		return positionMap[subset[i]] < positionMap[subset[j]]
+	})
+}
 
-	l := len(subset)
-	for i := 0; i < l-1; i++ {
-		for j := i + 1; j < l; j++ {
-			if positionMap[subset[i]] > positionMap[subset[j]] {
-				subset[i], subset[j] = subset[j], subset[i]
+// SortSubsetsByFullset 根据全集对子集进行排序，并调整其他集合相应元素的位置
+func SortSubsetsByFullset[V comparable, S any](fullset []V, subset []V, otherSets ...[]S) {
+	positionMap := make(map[V]int, len(fullset))
+	for i, val := range fullset {
+		if _, ok := positionMap[val]; ok {
+			continue
+		}
+		positionMap[val] = i
+	}
+	oldSubsetIndexMap := make(map[V][]int, len(subset))
+	for i, v := range subset {
+		oldSubsetIndexMap[v] = append(oldSubsetIndexMap[v], i)
+	}
+	sort.SliceStable(subset, func(i, j int) bool {
+		return positionMap[subset[i]] < positionMap[subset[j]]
+	})
+	subsetIndexSwapMap := make(map[int]int, len(subset))
+	for i, v := range subset {
+		oldIndex := oldSubsetIndexMap[v][0]
+		oldSubsetIndexMap[v] = oldSubsetIndexMap[v][1:]
+		if oldIndex == i {
+			continue
+		}
+		subsetIndexSwapMap[i] = oldIndex
+	}
+	for i := range otherSets {
+		if len(otherSets[i]) != len(subset) {
+			continue
+		}
+		oldSet := make([]S, len(otherSets[i]))
+		copy(oldSet, otherSets[i])
+		for j := range otherSets[i] {
+			if oi, ok := subsetIndexSwapMap[j]; ok {
+				otherSets[i][j] = oldSet[oi]
+				continue
 			}
 		}
 	}
+	return
 }
