@@ -236,7 +236,10 @@ func Reverse[V any](s []V) {
 	}
 }
 
-// SortSubsetByFullset sorts subset by fullset
+// SortSubsetByFullset sorts the elements of a subset slice in the order they appear in a fullset slice.
+// Elements of the subset that do not exist in the fullset are moved to the end, maintaining their original order.
+// This ensures a consistent order for subset elements based on the reference fullset,
+// which is useful for synchronizing the order of items across different collections.
 func SortSubsetByFullset[V comparable](fullset []V, subset []V) {
 	positionMap := make(map[V]int, len(fullset))
 	for i, val := range fullset {
@@ -247,31 +250,26 @@ func SortSubsetByFullset[V comparable](fullset []V, subset []V) {
 	}
 
 	sort.SliceStable(subset, func(i, j int) bool {
-		return positionMap[subset[i]] < positionMap[subset[j]]
+		pi, ok := positionMap[subset[i]]
+		if !ok {
+			pi, positionMap[subset[i]] = len(fullset), len(fullset)
+		}
+		pj, ok := positionMap[subset[j]]
+		if !ok {
+			pj, positionMap[subset[j]] = len(fullset), len(fullset)
+		}
+		return pi < pj
 	})
 }
 
-// SortSubsetsByFullset 根据全集对子集进行排序，并调整其他集合相应元素的位置（重复元素按首次出现位置计算排序）
-func SortSubsetsByFullset[V comparable, S any](fullset []V, subset []V, otherSets ...[]S) {
-	positionMap := make(map[V]int, len(fullset))
-	for i, val := range fullset {
-		if _, ok := positionMap[val]; ok {
-			continue
-		}
-		positionMap[val] = i
-	}
-
-	oldSubsetIndexMap := make(map[V][]int, len(subset))
-	for i, v := range subset {
-		oldSubsetIndexMap[v] = append(oldSubsetIndexMap[v], i)
-	}
-
-	sort.SliceStable(subset, func(i, j int) bool {
-		return positionMap[subset[i]] < positionMap[subset[j]]
-	})
-
-	subsetIndexSwapMap := make(map[int]int, len(subset))
-	for i, v := range subset {
+// AlignOtherSetsByNewSubsetOrder adjusts the order of elements in other sets based on a new subset order.
+// This function takes three parameters:
+// - oldSubsetIndexMap, which maps elements to their original indices in the subset.
+// - newSubset, which contains the elements in their new desired order.
+// - otherSets, which is a variadic parameter of slices that should be reordered based on the newSubset's order.
+func AlignOtherSetsByNewSubsetOrder[V comparable, S any](oldSubsetIndexMap map[V][]int, newSubset []V, otherSets ...[]S) {
+	subsetIndexSwapMap := make(map[int]int, len(newSubset))
+	for i, v := range newSubset {
 		oldIndex := oldSubsetIndexMap[v][0]
 		oldSubsetIndexMap[v] = oldSubsetIndexMap[v][1:]
 		if oldIndex == i {
@@ -282,7 +280,7 @@ func SortSubsetsByFullset[V comparable, S any](fullset []V, subset []V, otherSet
 
 	jumpSet := make(map[int]struct{}, len(subsetIndexSwapMap))
 	for i := range otherSets {
-		if len(otherSets[i]) != len(subset) {
+		if len(otherSets[i]) != len(newSubset) {
 			continue
 		}
 		for j := range otherSets[i] {
@@ -307,4 +305,71 @@ func SortSubsetsByFullset[V comparable, S any](fullset []V, subset []V, otherSet
 			}
 		}
 	}
+}
+
+// ElementIndicesMap creates a mapping from each unique element in the slice to a list of its indices.
+func ElementIndicesMap[V comparable](s []V) map[V][]int {
+	m := make(map[V][]int, len(s))
+	for i := range s {
+		m[s[i]] = append(m[s[i]], i)
+	}
+	return m
+}
+
+// SortSubsetsByFullset sorts a subset according to the order in the fullset and adjusts the positions
+// of corresponding elements in other sets accordingly. Duplicate elements are ordered by their first occurrence position.
+func SortSubsetsByFullset[V comparable, S any](fullset []V, subset []V, otherSets ...[]S) {
+	oldSubsetIndexMap := ElementIndicesMap(subset)
+
+	SortSubsetByFullset(fullset, subset)
+
+	AlignOtherSetsByNewSubsetOrder(oldSubsetIndexMap, subset, otherSets...)
+}
+
+// SortSubsetByFullsetOrder sorts the subset completely according to the order in the fullset.
+// This function takes two slices: `fullset` and `subset`. Elements in `subset` are rearranged to match the order they appear in `fullset`.
+// If there are elements in `subset` that do not exist in `fullset`, they are moved to the end of `subset` in their original order.
+func SortSubsetByFullsetOrder[V comparable](fullset []V, subset []V) {
+	subsetIndexMap := ElementIndicesMap(subset)
+
+	i := 0
+	for j := range fullset {
+		if _, ok := subsetIndexMap[fullset[j]]; !ok {
+			continue
+		}
+		subset[i] = fullset[j]
+		i++
+		if len(subsetIndexMap[fullset[j]]) == 1 {
+			delete(subsetIndexMap, fullset[j])
+		} else {
+			subsetIndexMap[fullset[j]] = subsetIndexMap[fullset[j]][1:]
+		}
+	}
+	if len(subsetIndexMap) > 0 {
+		unknownMap := make(map[int]V, len(subsetIndexMap))
+		for v, indices := range subsetIndexMap {
+			for _, index := range indices {
+				unknownMap[index] = v
+			}
+		}
+		for j := 0; j < len(subset); j++ {
+			if v, ok := unknownMap[j]; ok {
+				subset[i] = v
+				i++
+			}
+		}
+	}
+}
+
+// SortSubsetsByFullsetOrder rearranges the elements of a subset to match the order of a fullset
+// and adjusts the order of elements in other associated sets based on the new order of the subset.
+// This function takes the following parameters:
+// - fullset, which is the reference slice containing elements in the desired order.
+// - subset, which is the slice that needs to be reordered to match the order of elements in fullset.
+// - otherSets, which is a variadic parameter of slices that should be reordered according to the new order of the subset.
+func SortSubsetsByFullsetOrder[V comparable, S any](fullset []V, subset []V, otherSets ...[]S) {
+	oldSubsetIndexMap := ElementIndicesMap(subset)
+
+	SortSubsetByFullsetOrder(fullset, subset)
+	AlignOtherSetsByNewSubsetOrder(oldSubsetIndexMap, subset, otherSets...)
 }
