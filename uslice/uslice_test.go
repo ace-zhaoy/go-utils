@@ -929,11 +929,11 @@ func TestSortSubsetsByFullset(t *testing.T) {
 			name: "test1",
 			args: args[int, string]{
 				fullset:   []int{1, 2, 3, 4, 5},
-				subset:    []int{2, 3, 4},
+				subset:    []int{4, 3, 2},
 				otherSets: [][]string{{"a", "b", "c"}, {"e", "f", "g"}},
 			},
 			want:       []int{2, 3, 4},
-			wantOthers: [][]string{{"a", "b", "c"}, {"e", "f", "g"}},
+			wantOthers: [][]string{{"c", "b", "a"}, {"g", "f", "e"}},
 		},
 		{
 			name: "test2",
