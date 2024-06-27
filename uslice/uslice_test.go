@@ -252,7 +252,7 @@ func TestChunk(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := Chunk(tt.args.s, tt.args.length); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Chunk() = %v, want %v", got, tt.want)
+				t.Errorf("Chunk() = %+v, want %+v", got, tt.want)
 			}
 		})
 	}

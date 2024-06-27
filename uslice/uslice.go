@@ -12,7 +12,6 @@ func Intersect[T comparable](s1, s2 []T) []T {
 	for _, v := range s2 {
 		if _, ok := m[v]; ok {
 			n = append(n, v)
-			delete(m, v)
 		}
 	}
 	return n
@@ -95,18 +94,23 @@ func extractKey[K comparable, V any](v V, keyFunc func(V) K) K {
 	if keyFunc != nil {
 		return keyFunc(v)
 	}
-	if kv, ok := any(v).(interface{ MapKey() K }); ok {
-		return kv.MapKey()
-	}
-	if kv, ok := any(v).(interface{ MapKey() any }); ok {
-		return kv.MapKey().(K)
-	}
 	if kv, ok := any(v).(interface{ GetID() K }); ok {
 		return kv.GetID()
 	}
-	if kv, ok := any(v).(interface{ GetID() any }); ok {
-		return kv.GetID().(K)
+	if kv, ok := any(v).(interface{ MapKey() K }); ok {
+		return kv.MapKey()
 	}
+	if kv, ok := any(v).(interface{ GetID() any }); ok {
+		if id, ok := kv.GetID().(K); ok {
+			return id
+		}
+	}
+	if kv, ok := any(v).(interface{ MapKey() any }); ok {
+		if id, ok := kv.MapKey().(K); ok {
+			return id
+		}
+	}
+
 	panic("extractKey: no key function provided and value doesn't implement GetID or MapKey")
 }
 
