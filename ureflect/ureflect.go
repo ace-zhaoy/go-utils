@@ -31,9 +31,6 @@ type Zeroable interface {
 }
 
 func IsZero[T any](val T) bool {
-	if zeroable, ok := any(val).(Zeroable); ok {
-		return zeroable.IsZero()
-	}
 	v := reflect.ValueOf(val)
 	if (v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface) && v.IsNil() {
 		return true
