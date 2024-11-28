@@ -146,6 +146,14 @@ func ToMapFV[K comparable, V, T any](s []T, keyFunc func(T) K, valueFunc func(T)
 	return m
 }
 
+func ToAnySlice[V any](s []V) []any {
+	n := make([]any, len(s))
+	for i, v := range s {
+		n[i] = v
+	}
+	return n
+}
+
 func ToSliceMap[K comparable, V any](s []V, keyFunc func(V) K) map[K][]V {
 	m := make(map[K][]V, len(s))
 	for _, v := range s {

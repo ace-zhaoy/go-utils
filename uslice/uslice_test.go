@@ -362,6 +362,46 @@ func TestToMapFV(t *testing.T) {
 	}
 }
 
+func TestToAnySlice(t *testing.T) {
+	type args struct {
+		s []int
+	}
+	tests := []struct {
+		name string
+		args args
+		want []any
+	}{
+		{
+			name: "test1",
+			args: args{
+				s: []int{1, 2, 3, 4, 5},
+			},
+			want: []any{1, 2, 3, 4, 5},
+		},
+		{
+			name: "test2",
+			args: args{
+				s: []int{},
+			},
+			want: []any{},
+		},
+		{
+			name: "test3",
+			args: args{
+				s: []int{10, 20, 30},
+			},
+			want: []any{10, 20, 30},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := ToAnySlice(tt.args.s); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ToAnySlice() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestToSliceMap(t *testing.T) {
 	type args[K comparable, V any] struct {
 		s       []V
