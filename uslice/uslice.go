@@ -18,16 +18,19 @@ func Intersect[T comparable](s1, s2 []T) []T {
 }
 
 func Difference[T comparable](s1, s2 []T) []T {
-	m, n := make(map[T]struct{}, len(s1)), make([]T, 0)
-	for _, v := range s1 {
-		m[v] = struct{}{}
+	m := make(map[T]struct{}, len(s2))
+	for _, item := range s2 {
+		m[item] = struct{}{}
 	}
-	for _, v := range s2 {
-		if _, ok := m[v]; !ok {
-			n = append(n, v)
+
+	diff := make([]T, 0, len(s1))
+	for _, item := range s1 {
+		if _, found := m[item]; !found {
+			diff = append(diff, item)
 		}
 	}
-	return n
+
+	return diff
 }
 
 func Union[T comparable](ss ...[]T) []T {

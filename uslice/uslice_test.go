@@ -61,7 +61,7 @@ func TestDifference(t *testing.T) {
 				s1: []int{1, 2, 3, 4, 5},
 				s2: []int{2, 4, 6},
 			},
-			want: []int{6},
+			want: []int{1, 3, 5},
 		},
 		{
 			name: "test2",
@@ -69,7 +69,23 @@ func TestDifference(t *testing.T) {
 				s1: []int{1, 2, 3},
 				s2: []int{4, 5, 6},
 			},
-			want: []int{4, 5, 6},
+			want: []int{1, 2, 3},
+		},
+		{
+			name: "test3",
+			args: args[int]{
+				s1: []int{},
+				s2: []int{1, 2, 3},
+			},
+			want: []int{},
+		},
+		{
+			name: "test4",
+			args: args[int]{
+				s1: []int{1, 2, 3},
+				s2: []int{},
+			},
+			want: []int{1, 2, 3},
 		},
 	}
 	for _, tt := range tests {
